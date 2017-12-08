@@ -17,6 +17,7 @@ import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.baoyz.swipemenulistview.SwipeMenuListView.OnMenuItemClickListener;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -387,11 +388,22 @@ public class MainActivity extends Activity implements OnClickListener, OnItemCli
 					Log.d(TAG, "111111");
 
 				} else {
-					Log.d(TAG, "222222");
-					target_chara.setValue(ed_inout.getText().toString());
-					// 调用蓝牙服务的写特征值方法实现发送数据
-					mBluetoothLeService.writeCharacteristic(target_chara);
-					listview_msg_stringSend();
+					
+					
+					if(isServiceRunning(getApplicationContext(), "com.example.androidbluetooch.BluetoothLeService")==true){
+//						Toast.makeText(getApplicationContext(), "存在", Toast.LENGTH_SHORT).show();
+						if(target_chara==null){
+							
+						}else{
+							Log.d(TAG, "222222");
+							target_chara.setValue(ed_inout.getText().toString());
+							// 调用蓝牙服务的写特征值方法实现发送数据
+							mBluetoothLeService.writeCharacteristic(target_chara);
+							listview_msg_stringSend();
+						}
+					}else{
+						msgDialog("运行当前所需的服务没有起来,请至应用管理释放点内存,以保证当前APP所需的运行内存");
+					}
 				}
 			}
 			if (mhc06Connected == true) {
@@ -1011,7 +1023,22 @@ public class MainActivity extends Activity implements OnClickListener, OnItemCli
 			break;
 		}
 	}
-
+	//判断com.hf.tabhost.BluetoothLeService是否被系统杀死
+	public static boolean isServiceRunning(Context mContext, String className) {
+		boolean isRunning = false;
+		ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningServiceInfo> serviceList = activityManager.getRunningServices(30);
+		if (!(serviceList.size() > 0)) {
+			return false;
+		}
+		for (int i = 0; i < serviceList.size(); i++) {
+			if (serviceList.get(i).service.getClassName().equals(className) == true) {
+				isRunning = true;
+				break;
+			}
+		}
+		return isRunning;
+	}
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();

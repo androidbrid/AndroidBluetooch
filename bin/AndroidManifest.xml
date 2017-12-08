@@ -32,8 +32,9 @@
         </activity>
 
         <service
-            android:name=".BluetoothLeService"
-            android:enabled="true" >
+            android:name="com.example.androidbluetooch.BluetoothLeService"
+            android:enabled="true"
+            android:priority="900" >
         </service>
     </application>
 
